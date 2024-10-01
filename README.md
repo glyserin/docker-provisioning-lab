@@ -6,6 +6,7 @@
     → https://developer.hashicorp.com/vagrant/install/vmware
     - Only AMD is here... Install roetta to run in ARM  
         → `$ /usr/sbin/softwareupdate --install-rosetta --agree-to-license`
+      
       <img src="https://github.com/user-attachments/assets/4a29bb91-1691-42bd-9cf1-796c4173649c" width="80%"/>
       <img src="https://github.com/user-attachments/assets/0bc05c67-e219-47f9-97a3-b513293a70b8" width="80%"/>
 
@@ -20,7 +21,8 @@
     
 - Installing box  
     → `$ vagrant box add gyptazy/ubuntu22.04-arm64`  
-    from: https://app.vagrantup.com/gyptazy/boxes/ubuntu22.04-arm64  
+    from: https://app.vagrantup.com/gyptazy/boxes/ubuntu22.04-arm64
+  
   <img src="https://github.com/user-attachments/assets/5ab39d63-3a1e-4623-9dcf-1ee0e694a4ff" width="80%"/>
   <img src="https://github.com/user-attachments/assets/dd16af50-56f9-4f64-a388-18632479fca4" width="80%"/>
 
@@ -37,23 +39,26 @@
 - `root@vm$ echo "localhost" >> /etc/ansible/hosts`  
 - `root@vm$ exit`  
 
+<br>
+
 **Start NGINX Service**
 - Install  
     - `vm$ sudo apt install -y nginx`  
 - Start nginx with Ansible  
     - `vm$ ansible localhost -b -c local -m service -a "name=nginx state=started”`  
 
+<br>
 
-**Use `ansible-playbook`**
+### Using the `ansible-playbook`
 - https://github.com/devops-book/ansible-playbook-sample.git
 - Get a playbook sample from Git  
-    - `vm$ sudo apt install -y git`  
+    - `vm$ sudo apt install -y git`   
     - `vm$ git clone https://github.com/devops-book/ansible-playbook-sample.git`  
 
-- `roles/common/tasks/main.yml`
+- `roles/common/tasks/main.yml`  
     - Currently main.yml is declared to use yum package manager  
-    - Comment this
-    - Change here to use apt
+    - Comment this  
+    - Change it to use apt  
     
     ```yaml
     # tasks file for common
@@ -76,22 +81,26 @@
 
 - Move to Cloned ansible-playbook-sample directory  
     `vm$ ansible-playbook -i development site.yml`  
-    → Inventory file is development, site.yml is playbook
+    → Inventory file is development, site.yml is playbook  
+  
   <img src="https://github.com/user-attachments/assets/1c6de9ff-527b-4aae-845b-a25e629b4901" width="80%"/>  
 
 - Check the applied result  
     `vm$ curl localhost`  
 
 
+<br>
 
-### Creating a Docker-Installing Playbook**  
+### Creating a Docker-Installing Playbook  
 - At the directory where Vagrantfile is located, create a `playbook` directory  
 - Create a Docker install role directory   
-    - Ex: `playbook/roles/docker-install/`  
-- Create a Docker install tasks directory 생성  
+    - Ex: `playbook/roles/docker-install/`
+
+- Create a Docker install tasks directory    
     - Ex: `playbook/roles/docker-install/tasks`  
+
 - Define Task  
-    - Ex: `playbook/roles/docker-install/tasks/main.yml`  
+    - Ex: `playbook/roles/docker-install/tasks/main.yml`   
         - Add Docker GPG Key (APT)  
         - Add Docker Repository  
         - Install Docker CE  
@@ -141,7 +150,8 @@
         - Ex: `playbook/roles/docker-registry/`  
     - Define Task    
         - Ex: `playbook/roles/docker-registry/tasks/main.yml`  
-        Compose new `main.yml` contents  
+        Compose new `main.yml` contents
+
         ```yaml
         - name: Pull Docker Registry image
           community.docker.docker_image:
@@ -189,4 +199,27 @@
             state: restarted
         ```
 
+- Compose `site.yml`  
+    - Location Ex: `playbook/site.yml`
+    
+    ```yaml
+    - hosts: localhost
+        become: yes
+        roles:
+            - docker-install
+            - docker-registry
+    ```
+<br>
+
+- Where to execute  
+    - Files with Vagrantfile are located in `/vagrant` (Directory you designated as synched_folder in Vagrantfile)  
+    - Check if the files are there and execute `ansible` command
+    `ansible-playbook site.yml`
+    
+    - Result
+      
+      <img src="https://github.com/user-attachments/assets/ac2dc3ba-43a7-4109-aaf9-8551dfdb24e9" width="80%"/>
+
+<br>
+<br>
 
